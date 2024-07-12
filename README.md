@@ -1,12 +1,12 @@
 # Client-Server File Transfer app
 
-This app consists of two main components. The 'server.py' side and the 'client.py'.
+This app consists of two main components. The 'server.py' and the 'client.py'.
 
 ## Server
 
-In order to start the server, simply run `python server.py` and the server will start with default configuration.
+To start the server, simply run `python server.py` and the server will start with the default configuration.
 
-To list all possible settings run `python server.py -h`, which will list all possible arguments. These are:
+To list all possible settings, run `python server.py -h`, which will list all possible arguments. These are:
 
  - '-h' or '--help' -> Used to list options and usage
  - '-a' or '--host' -> Sets the Server host address (IP, localhost)
@@ -14,11 +14,11 @@ To list all possible settings run `python server.py -h`, which will list all pos
  - '-s' or '--savedir' -> Set the designated save directory
  - '-b' or '--buffer_size' -> Set buffer size
 
-Once the server is running, it will wait for a connection from client.
+Once the server is running, it will wait for a connection from the client.
 
 ## Client
 
-In order to transfer the file to server, run `python client.py -f=file_location`. Similarly to the server, client also gives the option to list usage and options by running `python client.py -h`.
+To transfer the file to the server, run `python client.py -f=file_location`. Similarly to the server, the client also gives the option to list usage and options by running `python client.py -h`.
 
 Possible options:
 
