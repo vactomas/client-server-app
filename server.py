@@ -11,6 +11,7 @@ class FileExistsError(Exception):
     pass
 
 
+# Server class
 class TransferServer(argparse.Namespace):
 
     # Key parametres - set by parse()
@@ -41,7 +42,7 @@ class TransferServer(argparse.Namespace):
 
 
     # Start server
-    def start(self, args=None):
+    def start(self):
         
         # Check if SAVEDIR exists. If it doesn't, create it.
         if not os.path.exists(self.SAVEDIR):
@@ -63,6 +64,7 @@ class TransferServer(argparse.Namespace):
             client_socket.close()
 
 
+    # Handle client connection and file transfer
     def handle_client(self, client_socket):
         
         # Try to receive the data
@@ -77,11 +79,13 @@ class TransferServer(argparse.Namespace):
             
             else:
                 client_socket.sendall(b"Ready to receive file")
-            
+
+            # Get filesize from client
             filesize = int.from_bytes(client_socket.recv(self.BUFFER_SIZE))
 
             print(f"Receiving file: {filename}")
 
+            # Receive the file
             with open(save_path, 'wb') as file:
                 total_received = 0 
                 while True:
@@ -96,10 +100,12 @@ class TransferServer(argparse.Namespace):
                     # Write received data
                     file.write(data)
 
+            # Throw an error if the entire file doesn't transfer
             if total_received != filesize:
                 client_socket.sendall(b"Incomplete file transfer")
                 raise Exception("Incomplete file transfer")
 
+            # Send success file transfer confirmation to the client
             client_socket.sendall(b"File transfer successful")
             print(f"Received file: {filename}")
         
@@ -125,4 +131,3 @@ def main():
 # Start check
 if __name__ == '__main__':
     main()
-
