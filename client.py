@@ -23,6 +23,7 @@ class TransferClient:
     BUFFER_SIZE = None
     FILESIZE = None
     PROGRESS = None
+
     
     # Init client
     def __init__(self):
@@ -69,13 +70,15 @@ class TransferClient:
     
         # Send file
         try:
+            # Send filename to the server
             self.client_socket.sendall(self.FILE.encode())
 
             time.sleep(0.1)
 
             # Receive confirmation from server
             response = self.client_socket.recv(self.BUFFER_SIZE).decode()
-            
+
+            # Throw an error if server reports that the file exists
             if response == "File Exists":
                 raise FileExistsError
             
@@ -97,6 +100,7 @@ class TransferClient:
                     # Update progress bar
                     self.PROGRESS.update(len(data))
 
+            # Close progress bar instance
             self.PROGRESS.close()
 
             # Receive confirmation from server
@@ -125,4 +129,3 @@ if __name__ == "__main__":
     client = TransferClient()
     client.parse()
     client.send()
-
