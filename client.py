@@ -82,7 +82,12 @@ class TransferClient:
             # Preparation for progress bar
             self.FILESIZE = os.path.getsize(self.FILE)
             self.PROGRESS = tqdm.tqdm(range(self.FILESIZE), f"Sending {self.FILE}", unit="B", unit_scale=True, unit_divisor=1024)
-           
+            
+            # Send filesize info
+            self.client_socket.sendall(self.FILESIZE.to_bytes(self.BUFFER_SIZE))
+
+            time.sleep(0.1)
+
             # Open file and send data
             with open(self.FILE, 'rb') as file:
                 for data in iter(lambda: file.read(self.BUFFER_SIZE), b''):
@@ -93,6 +98,12 @@ class TransferClient:
                     self.PROGRESS.update(len(data))
 
             self.PROGRESS.close()
+
+            # Receive confirmation from server
+            response = self.client_socket.recv(self.BUFFER_SIZE).decode()
+            
+            if not response == "File transfer successful":
+                raise Exception("File wasn't send successfully.")
 
             print(f"File sent: {self.FILE}")
             

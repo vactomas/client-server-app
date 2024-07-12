@@ -77,13 +77,18 @@ class TransferServer(argparse.Namespace):
             
             else:
                 client_socket.sendall(b"Ready to receive file")
+            
+            filesize = int.from_bytes(client_socket.recv(self.BUFFER_SIZE))
 
             print(f"Receiving file: {filename}")
 
             with open(save_path, 'wb') as file:
+                total_received = 0 
                 while True:
                     data = client_socket.recv(self.BUFFER_SIZE)
-                    
+                   
+                    total_received += len(data)
+
                     # Check if there is still ongoing transfer
                     if not data:
                         break
@@ -91,6 +96,11 @@ class TransferServer(argparse.Namespace):
                     # Write received data
                     file.write(data)
 
+            if total_received != filesize:
+                client_socket.sendall(b"Incomplete file transfer")
+                raise Exception("Incomplete file transfer")
+
+            client_socket.sendall(b"File transfer successful")
             print(f"Received file: {filename}")
         
         # Handle FileExistsError
