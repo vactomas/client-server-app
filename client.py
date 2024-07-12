@@ -19,9 +19,6 @@ class TransferClient:
     # Key parametres - set by parse()
     HOST = None
     PORT = None
-    PRIVATE_KEY_FILE = None
-    USERNAME = None
-    MODE = None
     FILE = None
     BUFFER_SIZE = None
     FILESIZE = None
@@ -31,13 +28,10 @@ class TransferClient:
     def __init__(self):
         super().__init__()
         self.parser = argparse.ArgumentParser(description="File transfer client")
-        self.parser.add_argument("--host", "-a", type=str, default="0.0.0.0", help="Server host address")
-        self.parser.add_argument("--port", "-p", type=int, default=2222, help="Server port")
-        self.parser.add_argument("--keyfile", "-k", type=str, default="./key", help="Private key file location")
-        self.parser.add_argument("--user", "-u", type=str, default="user", help="Username to use while in SSH mode. Defaults to 'user'. Only set when using SSH!")
-        self.parser.add_argument("--mode", "-m", type=str, default="unsecured", help="Choose file transfer mode. Options are 'unsecured' and 'ssh'")
-        self.parser.add_argument("--file", "-f", type=str, help="File location.")
-        self.parser.add_argument("--buffer_size", "-b", type=int, default=4096, help="Set buffer size, default value 4096.")    
+        self.parser.add_argument("-a", "--host", type=str, default="0.0.0.0", help="Server host address")
+        self.parser.add_argument("-p", "--port", type=int, default=2222, help="Server port")
+        self.parser.add_argument("-f", "--file", type=str, help="File location.")
+        self.parser.add_argument("-b", "--buffer_size", type=int, default=4096, help="Set buffer size, default value 4096.")    
    
     
     # Parse arguments and set corresponding variables
@@ -45,44 +39,32 @@ class TransferClient:
         options = self.parser.parse_args(args)
         self.HOST = options.host
         self.PORT = options.port
-        self.PRIVATE_KEY_FILE = options.keyfile
-        self.USERNAME = options.user
-        self.MODE = options.mode
         self.FILE = options.file
         self.BUFFER_SIZE = options.buffer_size
         return self
 
     
+    # Connect and send
     def send(self):
 
-        # Handle 'unsecured' mode
-        if self.MODE == "unsecured":
-            self.connect()
+        self.connect()
+        self.send_file()
 
-        elif self.MODE == "ssh":
-
-            pass
-
-        # Handle incorrectly selected mode
-        else:
-            print("Error. You have selected incorrect MODE.")
-
-
+    
+    # Connect to server
     def connect(self):
 
         # Create client_socket and connect to server
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.HOST, self.PORT))
         
-        # Send file
-        self.send_file()
 
-
+    # Send file in 'insecure' mode
     def send_file(self):
         
         # Check if file exists
         if not os.path.exists(self.FILE):
-            print(f"Error. File {self.FILE} does not exist.")
+            print(f"[!] Error. File {self.FILE} does not exist.")
             return
     
         # Send file
@@ -120,8 +102,8 @@ class TransferClient:
             print(f"File {self.FILE} already exists in the server output directory.")
 
         # Handle exceptions
-        except Exception as excp:
-            print(excp)
+        except Exception as e:
+            print(f"[!] Error: {e}")
 
         # Close socket after sending file
         finally:
